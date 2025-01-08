@@ -1,0 +1,30 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "Natours API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mokandev/natours-api.git"
+  },
+  "keywords": [
+    "Node.js"
+  ],
+  "author": "Carlos A. Flach",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mokandev/natours-api/issues"
+  },
+  "homepage": "https://github.com/mokandev/natours-api#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
