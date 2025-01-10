@@ -6,6 +6,16 @@ const app = express();
 // Passing a middleware to app to read req body.
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log('Hello From the Middleware');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next()
+});
+
 const PORT = 8000;
 
 const tours = JSON.parse(
@@ -13,9 +23,11 @@ const tours = JSON.parse(
 );
 
 const getAllTours = (req, res) => {
+  console.log(req.requestTime);
+  
   return res
     .status(200)
-    .json({ status: 'success', results: tours.length, data: { tours } });
+    .json({ status: 'success', results: tours.length, data: { tours }, requestedAt: req.requestTime });
 };
 
 const getTourById = (req, res) => {
