@@ -1,9 +1,12 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan')
 
 const app = express();
 
+// 1) MIDDLEWARES
 // Passing a middleware to app to read req body.
+app.use(morgan('dev'))
 app.use(express.json());
 
 app.use((req, res, next) => {
