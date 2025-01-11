@@ -14,7 +14,19 @@ const checkID = (req, res, next, val) => {
       message: 'Invalid ID',
     });
   }
+  next();
+};
 
+const checkBody = (req, res, next) => {
+  const { name, price } = req.body;
+  console.log('name', name, 'price', price);
+  
+  if (!name || !price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Invalid request body',
+    });
+  }
   next();
 };
 
@@ -84,4 +96,5 @@ module.exports = {
   updateTour,
   deleteTour,
   checkID,
+  checkBody,
 };
