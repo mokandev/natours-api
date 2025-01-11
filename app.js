@@ -5,12 +5,12 @@ const app = express();
 
 // 1) MIDDLEWARES
 // Passing a middleware to app to read req body.
-if(process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use(express.json());
 // Middleware to allow express to serve static files from some directory
-app.use(express.static(`${__dirname}/public`))
+app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   console.log('Hello From the Middleware');
