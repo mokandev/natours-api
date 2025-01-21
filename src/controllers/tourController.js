@@ -1,3 +1,4 @@
+/* eslint-disable prefer-object-spread */
 const fs = require('fs');
 
 const tours = JSON.parse(
@@ -59,6 +60,8 @@ const createTour = (req, res) => {
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
+      if (err) console.log('ERROR', err);
+
       return res.status(201).json({
         status: 'success',
         data: {
