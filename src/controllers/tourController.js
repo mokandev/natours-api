@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+  fs.readFileSync(`${__dirname}/../../dev-data/data/tours-simple.json`),
 );
 
 // 2) ROUTE HANDLERS = CONTROLLERS
@@ -20,7 +20,7 @@ const checkID = (req, res, next, val) => {
 const checkBody = (req, res, next) => {
   const { name, price } = req.body;
   console.log('name', name, 'price', price);
-  
+
   if (!name || !price) {
     return res.status(400).json({
       status: 'fail',
@@ -65,7 +65,7 @@ const createTour = (req, res) => {
           tour: newTour,
         },
       });
-    }
+    },
   );
 };
 
