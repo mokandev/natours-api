@@ -4,18 +4,6 @@ const Tour = require('../models/tourModel');
 
 // 2) ROUTE HANDLERS = CONTROLLERS
 
-const checkBody = (req, res, next) => {
-  const { name, price } = req.body;
-
-  if (!name || !price) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Invalid request body',
-    });
-  }
-  next();
-};
-
 const getAllTours = (req, res) => {
   console.log(req.requestTime);
 
@@ -28,23 +16,20 @@ const getAllTours = (req, res) => {
 };
 
 const getTourById = (req, res) => {
-  const tourId = req.params.id;
   // const tour = tours.find((el) => el.id === Number(tourId));
-
   // return res.status(200).json({ status: 'success', data: { tour } });
 };
 
-const createTour = (req, res) => {
-  const tour = req.body;
-  // const newId = tours[tours.length - 1].id + 1;
-  // const newTour = Object.assign({ id: newId }, tour);
-
-  // return res.status(201).json({
-  //   status: 'success',
-  //   data: {
-  //     tour: newTour,
-  //   },
-  // });
+const createTour = async (req, res) => {
+  try {
+    const newTour = await Tour.create(req.body);
+    return res.status(201).json({ status: 'success', data: { tour: newTour } });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid data sent!',
+    });
+  }
 };
 
 const updateTour = (req, res) => {
@@ -73,5 +58,4 @@ module.exports = {
   createTour,
   updateTour,
   deleteTour,
-  checkBody,
 };
