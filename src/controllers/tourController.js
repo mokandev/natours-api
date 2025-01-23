@@ -4,20 +4,25 @@ const Tour = require('../models/tourModel');
 
 // 2) ROUTE HANDLERS = CONTROLLERS
 
-const getAllTours = (req, res) => {
-  console.log(req.requestTime);
-
-  return res.status(200).json({
-    status: 'success',
-    // results: tours.length,
-    // data: { tours },
-    requestedAt: req.requestTime,
-  });
+const getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+    return res
+      .status(200)
+      .json({ status: 'success', data: { tours, results: tours.length } });
+  } catch (error) {
+    return res.status(400).json({ status: 'fail', message: error.message });
+  }
 };
 
-const getTourById = (req, res) => {
-  // const tour = tours.find((el) => el.id === Number(tourId));
-  // return res.status(200).json({ status: 'success', data: { tour } });
+const getTourById = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // Tour.findOne({_id: req.params.id})
+    return res.status(200).json({ status: 'success', data: { tour } });
+  } catch (error) {
+    return res.status(404).json({ status: 'fail', message: 'Invalid tour ID' });
+  }
 };
 
 const createTour = async (req, res) => {
