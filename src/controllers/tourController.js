@@ -6,12 +6,21 @@ const Tour = require('../models/tourModel');
 
 const getAllTours = async (req, res) => {
   try {
+    // 1) Filtering
     const queryObj = { ...req.query };
     const excludeFields = ['page', 'sort', 'limit', 'fields'];
     excludeFields.forEach((el) => delete queryObj[el]);
 
+    // 2) Advanced Filtering
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    // { difficulty: "easy", duration: { $gte: 5 }}
+    // req.query { difficulty: "easy", durationg: { gte: '5' } }
+    // gte, gt, lte, lt
+
     // BUILD QUERY
-    const query = Tour.find(queryObj);
+    const query = Tour.find(JSON.parse(queryStr));
 
     // CHANINING METHODS TO THE QUERY
     // const query = Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
