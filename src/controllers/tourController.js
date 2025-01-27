@@ -1,6 +1,5 @@
-/* eslint-disable prefer-object-spread */
-
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 // 2) ROUTE HANDLERS = CONTROLLERS
 
@@ -11,66 +10,17 @@ const aliasTopTours = async (req, res, next) => {
   next();
 };
 
+
 const getAllTours = async (req, res) => {
   try {
-    // 1A) Filtering
-    const queryObj = { ...req.query };
-    const excludeFields = ['page', 'sort', 'limit', 'fields'];
-    excludeFields.forEach((el) => delete queryObj[el]);
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+      
+    const tours = await features.query;
 
-    // 1B) Advanced Filtering
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-    // { difficulty: "easy", duration: { $gte: 5 }}
-    // req.query { difficulty: "easy", durationg: { gte: '5' } }
-    // gte, gt, lte, lt
-
-    // 2) Sorting
-
-    // BUILD QUERY
-    let query = Tour.find(JSON.parse(queryStr));
-
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-      // sort("price ratingsAverage")
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    // 3) Fields Limiting
-
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // 4) Pagination
-
-    const page = req.query.page * 1 || 1;
-
-    const limit = req.query.limit * 1 || 100;
-
-    const skip = (page - 1) * limit;
-
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('This page does not exists');
-    }
-
-    // limit=10&page=2  , 1-10 page 1 , 11-20 page2, 21-30 page3
-    query = query.skip(skip).limit(limit);
-
-    // EXECUTE QUERY
-    const tours = await query;
-
-    // CHANINING METHODS TO THE QUERY
-    // const query = Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
-
-    // SEND RESPONSE
     return res
       .status(200)
       .json({ status: 'success', data: { tours, results: tours.length } });
