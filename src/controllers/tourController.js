@@ -32,14 +32,30 @@ const getAllTours = async (req, res) => {
       query = query.sort('-createdAt');
     }
 
-    if(req.query.fields) {
+    // 3) Fields Limiting
+
+    if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields)
+      query = query.select(fields);
     } else {
-      query = query.select('-__v')
+      query = query.select('-__v');
     }
 
-    // 3) Field Limiting
+    // 4) Pagination
+
+    const page = req.query.page * 1 || 1;
+
+    const limit = req.query.limit * 1 || 100;
+
+    const skip = (page - 1) * limit;
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exists');
+    }
+
+    // limit=10&page=2  , 1-10 page 1 , 11-20 page2, 21-30 page3
+    query = query.skip(skip).limit(limit);
 
     // EXECUTE QUERY
     const tours = await query;
@@ -52,7 +68,7 @@ const getAllTours = async (req, res) => {
       .status(200)
       .json({ status: 'success', data: { tours, results: tours.length } });
   } catch (error) {
-    return res.status(400).json({ status: 'fail', message: error.message });
+    return res.status(404).json({ status: 'fail', message: error.message });
   }
 };
 
