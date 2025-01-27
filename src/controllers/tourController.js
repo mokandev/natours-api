@@ -4,6 +4,13 @@ const Tour = require('../models/tourModel');
 
 // 2) ROUTE HANDLERS = CONTROLLERS
 
+const aliasTopTours = async (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = 'price,-ratingsAverage,';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 const getAllTours = async (req, res) => {
   try {
     // 1A) Filtering
@@ -123,4 +130,5 @@ module.exports = {
   createTour,
   updateTour,
   deleteTour,
+  aliasTopTours,
 };
