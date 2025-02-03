@@ -27,7 +27,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', tourRouter);
 
 
-// ERROR HANDLER MUST BE DEFINED AFTER OTHER HANDLERS, SO IF THE OTHER ROUTES DONT MATCH IT, IT WILL BE CALLED.
+
 app.all('*', (req, res) => {
   res
     .status(404)
