@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 // 2) ROUTE HANDLERS = CONTROLLERS
@@ -11,7 +12,7 @@ const aliasTopTours = async (req, res, next) => {
   next();
 };
 
-const getAllTours = catchAsync(async (req, res) => {
+const getAllTours = catchAsync(async (req, res, next) => {
   const features = new APIFeatures(Tour.find(), req.query)
     .filter()
     .sort()
@@ -25,33 +26,47 @@ const getAllTours = catchAsync(async (req, res) => {
     .json({ status: 'success', data: { tours, results: tours.length } });
 });
 
-const getTourById = catchAsync(async (req, res) => {
+const getTourById = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.id);
+
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
   // Tour.findOne({_id: req.params.id})
   return res.status(200).json({ status: 'success', data: { tour } });
 });
 
-const createTour = catchAsync(async (req, res) => {
+const createTour = catchAsync(async (req, res, next) => {
   const newTour = await Tour.create(req.body);
   return res.status(201).json({ status: 'success', data: { tour: newTour } });
 });
 
-const updateTour = catchAsync(async (req, res) => {
+const updateTour = catchAsync(async (req, res, next) => {
   const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
+
+  if (!updatedTour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
+
   return res
     .status(200)
     .json({ status: 'success', data: { tour: updatedTour } });
 });
 
-const deleteTour = catchAsync(async (req, res) => {
-  await Tour.findByIdAndDelete(req.params.id);
+const deleteTour = catchAsync(async (req, res, next) => {
+  const deletedTour = await Tour.findByIdAndDelete(req.params.id);
+
+  if (!deletedTour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
+
   return res.status(204).json({ status: 'success' });
 });
 
-const getTourStats = catchAsync(async (req, res) => {
+const getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
     { $match: { ratingsAverage: { $gte: 4.5 } } },
     {
@@ -76,7 +91,7 @@ const getTourStats = catchAsync(async (req, res) => {
   return res.status(201).json({ status: 'success', data: { stats } });
 });
 
-const getMonthlyPlan = catchAsync(async (req, res) => {
+const getMonthlyPlan = catchAsync(async (req, res, next) => {
   const year = req.params.year * 1;
 
   const plan = await Tour.aggregate([
