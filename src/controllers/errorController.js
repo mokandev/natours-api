@@ -38,6 +38,8 @@ const sendErrorProd = (err, res) => {
       .json({ status: err.status, message: err.message });
   } else {
     // Programming or other unknown error: don't leak error details
+    console.log('@@ERROR@@', { statusCode: 500, status: 'error' });
+
     return res.status(500).json({
       status: 'error',
       message: 'Something went very wrong!',
