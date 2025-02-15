@@ -15,6 +15,7 @@ const signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    passwordChangedAt: req.body.passwordChangedAt,
   });
 
   const token = signToken(newUser._id);
@@ -63,15 +64,29 @@ const protect = catchAsync(async (req, res, next) => {
       new AppError('You are not logged in! Please log in to get access.', 401),
     );
   }
-  
+
   // 2) Verification token
-
-
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   // 3) Check if user still exists
 
-  // 4) Check if user changed password after the token was issued
+  const user = await User.findById(decoded.id);
 
+  if (!user) {
+    return next(
+      new AppError('The user belonging this token does not longer exists', 401),
+    );
+  }
+
+  // 4) Check if user changed password after the token was issued
+  if (await user.changedPasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('User recently changed password! Please log in again.', 401),
+    );
+  }
+
+  // GRANT ACCESS TO PROTECTED ROUTE
+  req.user = user;
   next();
 });
 
