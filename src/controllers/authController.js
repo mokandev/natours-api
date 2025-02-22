@@ -184,10 +184,8 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
 const updatePassword = catchAsync(async (req, res, next) => {
   const { newPassword, confirmNewPassword, currentPassword } = req.body;
-  console.log('req.body', req.body);
 
   const user = await User.findById(req.user.id).select('+password');
-  console.log('@@@@@USER', user);
 
   if (!(await user.correctsPassword(currentPassword, user.password))) {
     return next(new AppError('Your current password is wrong.', 401));
