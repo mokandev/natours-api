@@ -29,7 +29,7 @@ router
 
 router
   .route('/:id')
-  .get(tourController.getTourById)
+  .get(authController.protect, tourController.getTourById)
   .patch(tourController.updateTour)
   .delete(
     authController.protect,
