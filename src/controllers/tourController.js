@@ -5,9 +5,9 @@ const catchAsync = require('../utils/catchAsync');
 
 // 2) ROUTE HANDLERS = CONTROLLERS
 
-const aliasTopTours = async (req, res, next) => {
+const aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
-  req.query.sort = 'price,-ratingsAverage,';
+  req.query.sort = '-ratingsAverage,price';
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
   next();
 };
@@ -18,12 +18,15 @@ const getAllTours = catchAsync(async (req, res, next) => {
     .sort()
     .limitFields()
     .paginate();
-
   const tours = await features.query;
 
-  return res
-    .status(200)
-    .json({ status: 'success', results: tours.length, data: { tours } });
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
 });
 
 const getTourById = catchAsync(async (req, res, next) => {
