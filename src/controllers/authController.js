@@ -5,6 +5,8 @@ const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
 const crypto = require('crypto');
 
+const DAY_TO_MS = 24 * 60 * 60 * 1000;
+
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '3d',
@@ -13,9 +15,26 @@ const signToken = (id) => {
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * DAY_TO_MS,
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
-  return res.status(statusCode).json({ status: 'success', token });
-}
+  res.cookie('jwt', token, cookieOptions);
+
+  user.password = undefined;
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
 
 const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -27,15 +46,7 @@ const signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
 
-  const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -52,7 +63,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  createSendToken(user, 200, res)
+  createSendToken(user, 200, res);
 });
 
 const protect = catchAsync(async (req, res, next) => {
@@ -179,7 +190,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  createSendToken(user, 200, res)
+  createSendToken(user, 200, res);
 });
 
 const updatePassword = catchAsync(async (req, res, next) => {
@@ -192,10 +203,10 @@ const updatePassword = catchAsync(async (req, res, next) => {
   }
 
   user.password = newPassword;
-  user.passwordConfirm = confirmNewPassword
+  user.passwordConfirm = confirmNewPassword;
   await user.save();
 
-  createSendToken(user, 200, res)
+  createSendToken(user, 200, res);
 });
 
 module.exports = {
@@ -205,5 +216,5 @@ module.exports = {
   restrictTo,
   forgotPassword,
   resetPassword,
-  updatePassword
+  updatePassword,
 };
