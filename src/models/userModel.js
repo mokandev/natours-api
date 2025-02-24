@@ -79,7 +79,7 @@ userSchema.pre(/^find/, function(next) {
   next();
 });
 
-userSchema.methods.correctsPassword = async function (
+userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword,
 ) {
