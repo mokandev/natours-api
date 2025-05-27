@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
-const User = require('./userModel')
 
 const tourSchema = new mongoose.Schema(
   {
@@ -99,9 +98,14 @@ const tourSchema = new mongoose.Schema(
         address: String,
         description: String,
         day: Number,
-      }
-    ], 
-    guides: Array
+      },
+    ],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: {
@@ -145,6 +149,15 @@ tourSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt -passwordResetToken -passwordResetExpires',
+  });
+  next();
+});
+
 
 tourSchema.post(/^find/, function (docs, next) {
   // this.find({ secretTour: { $ne: true } });
