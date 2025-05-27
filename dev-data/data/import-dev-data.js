@@ -12,15 +12,13 @@ const DB = process.env.DATABASE_URL.replace(
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
   })
   .then(() => {
     console.log('DB Connection Successful');
   });
 
 // READ JSON FILE
-const toursRaw = fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8');
+const toursRaw = fs.readFileSync(`${__dirname}/tours.json`, 'utf-8');
 const tours = JSON.parse(toursRaw);
 
 // IMPORT DATA INTO DB
