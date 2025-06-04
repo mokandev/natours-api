@@ -1,6 +1,7 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
+const reviewRouter = require('../routes/reviewRoutes');
 // Destructuring
 // const {
 //   getAllTours,
@@ -11,6 +12,13 @@ const authController = require('../controllers/authController');
 // } = require('../controllers/tourController');
 
 const router = express.Router();
+
+
+
+// Rerouting
+// POST /:tourId/reviews
+// GET /:tourId/reviews
+router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/top-5-cheap')
